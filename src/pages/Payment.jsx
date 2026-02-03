@@ -23,7 +23,8 @@ const Payment = () => {
       } catch (error) {
         console.error('Error fetching QR code:', error);
       } finally {
-        setPageLoading(false);
+        // Always set loading to false, even if fetch fails
+        setTimeout(() => setPageLoading(false), 500);
       }
     };
     fetchQRCode();
