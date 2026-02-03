@@ -14,9 +14,13 @@ const Payment = () => {
 
   useEffect(() => {
     const fetchQRCode = async () => {
-      const qrDoc = await getDoc(doc(db, 'settings', 'payment'));
-      if (qrDoc.exists()) {
-        setQrCode(qrDoc.data().qrCodeUrl || '');
+      try {
+        const qrDoc = await getDoc(doc(db, 'settings', 'payment'));
+        if (qrDoc.exists()) {
+          setQrCode(qrDoc.data().qrCodeUrl || '');
+        }
+      } catch (error) {
+        console.error('Error fetching QR code:', error);
       }
     };
     fetchQRCode();
@@ -43,8 +47,11 @@ const Payment = () => {
       });
       
       toast.success('Payment details submitted! Waiting for admin approval.');
+      setTransactionId('');
+      setAmount('');
     } catch (error) {
-      toast.error('Failed to submit payment details');
+      console.error('Payment submission error:', error);
+      toast.error('Failed to submit payment details: ' + error.message);
     }
     setLoading(false);
   };
@@ -98,7 +105,10 @@ const Payment = () => {
                 {qrCode ? (
                   <img src={qrCode} alt="Payment QR Code" className="max-h-full" />
                 ) : (
-                  <p className="text-gray-500">QR Code will be displayed here</p>
+                  <div className="text-center">
+                    <p className="text-gray-500 mb-2">QR Code not uploaded yet</p>
+                    <p className="text-sm text-gray-400">Admin will upload payment QR code soon</p>
+                  </div>
                 )}
               </div>
               
