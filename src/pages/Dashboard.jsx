@@ -12,6 +12,8 @@ const Dashboard = () => {
   const [players, setPlayers] = useState([]);
   const [teamEditEnabled, setTeamEditEnabled] = useState(false);
   const [leaderboard, setLeaderboard] = useState([]);
+  const [showAllTeams, setShowAllTeams] = useState(false);
+  const [selectedTeam, setSelectedTeam] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -49,7 +51,8 @@ const Dashboard = () => {
           userId: doc.id,
           userName: usersMap[doc.id] || 'Unknown',
           teamName: teamData.teamName,
-          points: calculateTeamPoints(teamData, playersData)
+          points: calculateTeamPoints(teamData, playersData),
+          teamData: teamData // Store full team data for viewing
         };
       }).sort((a, b) => b.points - a.points);
 
@@ -212,7 +215,15 @@ const Dashboard = () => {
         )}
 
         <div className="bg-white rounded-lg shadow-lg p-6 mt-6">
-          <h2 className="text-2xl font-bold text-gray-800 mb-4">Leaderboard</h2>
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-2xl font-bold text-gray-800">Leaderboard</h2>
+            <button
+              onClick={() => setShowAllTeams(!showAllTeams)}
+              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
+            >
+              {showAllTeams ? 'Hide Teams' : 'View All Teams'}
+            </button>
+          </div>
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead className="bg-gray-50">
@@ -221,6 +232,7 @@ const Dashboard = () => {
                   <th className="px-4 py-2 text-left">User</th>
                   <th className="px-4 py-2 text-left">Team Name</th>
                   <th className="px-4 py-2 text-right">Points</th>
+                  {showAllTeams && <th className="px-4 py-2 text-center">View Team</th>}
                 </tr>
               </thead>
               <tbody>
@@ -233,12 +245,91 @@ const Dashboard = () => {
                     <td className="px-4 py-2">{entry.userName}</td>
                     <td className="px-4 py-2">{entry.teamName}</td>
                     <td className="px-4 py-2 text-right font-semibold">{entry.points.toFixed(1)}</td>
+                    {showAllTeams && (
+                      <td className="px-4 py-2 text-center">
+                        <button
+                          onClick={() => setSelectedTeam(entry)}
+                          className="text-blue-600 hover:underline"
+                        >
+                          View
+                        </button>
+                      </td>
+                    )}
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
         </div>
+
+        {/* Team View Modal */}
+        {selectedTeam && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+            <div className="bg-white rounded-lg shadow-xl p-6 max-w-2xl w-full max-h-[80vh] overflow-y-auto">
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-2xl font-bold text-gray-800">
+                  {selectedTeam.teamName}
+                </h3>
+                <button
+                  onClick={() => setSelectedTeam(null)}
+                  className="text-gray-500 hover:text-gray-700"
+                >
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+              <p className="text-gray-600 mb-4">User: {selectedTeam.userName}</p>
+              <p className="text-lg font-semibold text-blue-600 mb-4">
+                Total Points: {selectedTeam.points.toFixed(1)}
+              </p>
+              
+              {selectedTeam.teamData && selectedTeam.teamData.players && (
+                <div className="overflow-x-auto">
+                  <table className="w-full">
+                    <thead className="bg-gray-50">
+                      <tr>
+                        <th className="px-4 py-2 text-left">Player</th>
+                        <th className="px-4 py-2 text-left">Country</th>
+                        <th className="px-4 py-2 text-left">Role</th>
+                        <th className="px-4 py-2 text-right">Points</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {selectedTeam.teamData.players.map((selection, idx) => {
+                        const player = getPlayerDetails(selection.playerId);
+                        if (!player) return null;
+                        
+                        let role = '';
+                        let multiplier = 1;
+                        if (selection.playerId === selectedTeam.teamData.captain) {
+                          role = '(C)';
+                          multiplier = 2;
+                        } else if (selection.playerId === selectedTeam.teamData.viceCaptain) {
+                          role = '(VC)';
+                          multiplier = 1.5;
+                        }
+                        
+                        return (
+                          <tr key={idx} className="border-t">
+                            <td className="px-4 py-2">{player.name} {role}</td>
+                            <td className="px-4 py-2">{player.country}</td>
+                            <td className="px-4 py-2 text-sm text-gray-600">
+                              {multiplier > 1 ? `${multiplier}x` : ''}
+                            </td>
+                            <td className="px-4 py-2 text-right font-semibold">
+                              {((player.points || 0) * multiplier).toFixed(1)}
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
