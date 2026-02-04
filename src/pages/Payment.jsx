@@ -1,15 +1,30 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { CreditCard, CheckCircle } from 'lucide-react';
 
 const Payment = () => {
   const { userProfile } = useAuth();
   const [pageLoading, setPageLoading] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
     // Just set loading to false after a short delay
     setTimeout(() => setPageLoading(false), 500);
   }, []);
+
+  useEffect(() => {
+    // Auto-redirect if payment is approved
+    if (userProfile?.paymentApproved) {
+      setTimeout(() => {
+        if (userProfile.role === 'admin') {
+          navigate('/admin');
+        } else {
+          navigate('/dashboard');
+        }
+      }, 2000); // Wait 2 seconds to show success message
+    }
+  }, [userProfile, navigate]);
 
   if (pageLoading) {
     return (
@@ -85,7 +100,7 @@ const Payment = () => {
                 </li>
                 <li className="flex items-start">
                   <span className="font-bold text-blue-600 mr-2">3.</span>
-                  <span>Complete payment of ₹300</span>
+                  <span>Complete payment of ₹350</span>
                 </li>
                 <li className="flex items-start">
                   <span className="font-bold text-blue-600 mr-2">4.</span>
@@ -101,4 +116,3 @@ const Payment = () => {
 };
 
 export default Payment;
-
