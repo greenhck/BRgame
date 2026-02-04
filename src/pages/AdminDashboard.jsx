@@ -13,7 +13,9 @@ const AdminDashboard = () => {
   const [settings, setSettings] = useState({
     signupEnabled: true,
     loginEnabled: true,
-    teamEditEnabled: true
+    teamEditEnabled: true,
+    leaderboardPublic: false,
+    teamsPublic: false
   });
   const [players, setPlayers] = useState([]);
   const [payments, setPayments] = useState([]);
@@ -247,23 +249,6 @@ const AdminDashboard = () => {
 
                 <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
                   <div>
-                    <h3 className="font-semibold">User Login</h3>
-                    <p className="text-sm text-gray-600">Allow users to login</p>
-                  </div>
-                  <button
-                    onClick={() => handleSettingToggle('loginEnabled')}
-                    className={`px-6 py-2 rounded-lg font-semibold ${
-                      settings.loginEnabled
-                        ? 'bg-green-600 text-white'
-                        : 'bg-red-600 text-white'
-                    }`}
-                  >
-                    {settings.loginEnabled ? 'Enabled' : 'Disabled'}
-                  </button>
-                </div>
-
-                <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-                  <div>
                     <h3 className="font-semibold">Team Editing</h3>
                     <p className="text-sm text-gray-600">Allow users to edit their teams</p>
                   </div>
@@ -276,6 +261,40 @@ const AdminDashboard = () => {
                     }`}
                   >
                     {settings.teamEditEnabled ? 'Enabled' : 'Disabled'}
+                  </button>
+                </div>
+
+                <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                  <div>
+                    <h3 className="font-semibold">Public Leaderboard</h3>
+                    <p className="text-sm text-gray-600">Show leaderboard to non-logged-in users</p>
+                  </div>
+                  <button
+                    onClick={() => handleSettingToggle('leaderboardPublic')}
+                    className={`px-6 py-2 rounded-lg font-semibold ${
+                      settings.leaderboardPublic
+                        ? 'bg-green-600 text-white'
+                        : 'bg-red-600 text-white'
+                    }`}
+                  >
+                    {settings.leaderboardPublic ? 'Public' : 'Private'}
+                  </button>
+                </div>
+
+                <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                  <div>
+                    <h3 className="font-semibold">Public Teams View</h3>
+                    <p className="text-sm text-gray-600">Show all user teams to public</p>
+                  </div>
+                  <button
+                    onClick={() => handleSettingToggle('teamsPublic')}
+                    className={`px-6 py-2 rounded-lg font-semibold ${
+                      settings.teamsPublic
+                        ? 'bg-green-600 text-white'
+                        : 'bg-red-600 text-white'
+                    }`}
+                  >
+                    {settings.teamsPublic ? 'Public' : 'Private'}
                   </button>
                 </div>
               </div>
