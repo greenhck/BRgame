@@ -85,7 +85,7 @@ const Payment = () => {
                 </li>
                 <li className="flex items-start">
                   <span className="font-bold text-blue-600 mr-2">3.</span>
-                  <span>Complete payment of ₹350</span>
+                  <span>Complete payment of ₹300</span>
                 </li>
                 <li className="flex items-start">
                   <span className="font-bold text-blue-600 mr-2">4.</span>
@@ -101,3 +101,4 @@ const Payment = () => {
 };
 
 export default Payment;
+
