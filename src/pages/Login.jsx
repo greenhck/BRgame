@@ -10,26 +10,10 @@ const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
-  const [loginEnabled, setLoginEnabled] = useState(true);
   const navigate = useNavigate();
-
-  useEffect(() => {
-    const checkLoginStatus = async () => {
-      const settingsDoc = await getDoc(doc(db, 'settings', 'general'));
-      if (settingsDoc.exists()) {
-        setLoginEnabled(settingsDoc.data().loginEnabled !== false);
-      }
-    };
-    checkLoginStatus();
-  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
-    if (!loginEnabled) {
-      toast.error('Login is currently disabled by admin');
-      return;
-    }
     
     setLoading(true);
     try {
@@ -58,11 +42,6 @@ const Login = () => {
   };
 
   const handleGoogleSignIn = async () => {
-    if (!loginEnabled) {
-      toast.error('Login is currently disabled by admin');
-      return;
-    }
-    
     setLoading(true);
     try {
       const result = await signInWithPopup(auth, googleProvider);
@@ -99,12 +78,6 @@ const Login = () => {
         
         <h2 className="text-2xl font-semibold text-center mb-6">Login</h2>
         
-        {!loginEnabled && (
-          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-            Login is currently disabled by admin
-          </div>
-        )}
-        
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
@@ -132,7 +105,7 @@ const Login = () => {
           
           <button
             type="submit"
-            disabled={loading || !loginEnabled}
+            disabled={loading}
             className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 disabled:bg-gray-400 transition"
           >
             {loading ? 'Logging in...' : 'Login'}
@@ -151,7 +124,7 @@ const Login = () => {
           
           <button
             onClick={handleGoogleSignIn}
-            disabled={loading || !loginEnabled}
+            disabled={loading}
             className="mt-4 w-full flex items-center justify-center px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:bg-gray-100 transition"
           >
             <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24">
