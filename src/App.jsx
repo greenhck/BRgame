@@ -20,10 +20,30 @@ const ProtectedRoute = ({ children, adminOnly = false }) => {
     return <Navigate to="/dashboard" />;
   }
   
+  if (!adminOnly && userProfile?.role === 'admin') {
+    return <Navigate to="/admin" />;
+  }
+  
+  if (!adminOnly && !userProfile?.paymentApproved) {
+    return <Navigate to="/payment" />;
+  }
+  
   return children;
 };
 
 const PublicRoute = ({ children }) => {
+  const { currentUser, userProfile } = useAuth();
+  
+  if (currentUser) {
+    if (userProfile?.role === 'admin') {
+      return <Navigate to="/admin" />;
+    }
+    if (!userProfile?.paymentApproved) {
+      return <Navigate to="/payment" />;
+    }
+    return <Navigate to="/dashboard" />;
+  }
+  
   return children;
 };
 
@@ -33,13 +53,13 @@ function App() {
       <Router>
         <Toaster position="top-right" />
         <Routes>
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
+          <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />
+          <Route path="/register" element={<PublicRoute><Register /></PublicRoute>} />
           <Route path="/payment" element={<ProtectedRoute><Payment /></ProtectedRoute>} />
           <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
           <Route path="/create-team" element={<ProtectedRoute><CreateTeam /></ProtectedRoute>} />
           <Route path="/admin" element={<ProtectedRoute adminOnly><AdminDashboard /></ProtectedRoute>} />
-          <Route path="/" element={<Login />} />
+          <Route path="/" element={<Navigate to="/login" />} />
         </Routes>
       </Router>
     </AuthProvider>
